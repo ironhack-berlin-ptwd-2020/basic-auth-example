@@ -9,6 +9,12 @@ const cookieParser = require('cookie-parser');
 const hbs = require('hbs');
 const mongoose = require('mongoose');
 
+// we added
+const session = require('express-session');
+
+// we added
+const MongoStore = require('connect-mongo')(session);
+
 // Set up the database
 require('./configs/db.config');
 
@@ -16,6 +22,20 @@ require('./configs/db.config');
 const indexRouter = require('./routes/index.routes');
 
 const app = express();
+
+// we added
+app.use(
+  session({
+    secret: 'doesnt-matter',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 60000 * 60 }, // 1 hour
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection,
+      ttl: 60 * 60 * 24 // 60sec * 60min * 24h => 1 day
+    })
+  })
+);
 
 // Express View engine setup
 
